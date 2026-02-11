@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de Suivi des Besoins de Staffing</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Page de login -->
+    <div id="loginPage" class="login-page">
+        <div class="login-container">
+            <div class="login-box">
+                <h2>🔐 Connexion</h2>
+                <p class="login-subtitle">Tableau de Suivi des Besoins de Staffing</p>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="loginUsername">Nom d'utilisateur</label>
+                        <input type="text" id="loginUsername" required autocomplete="username" placeholder="Entrez votre nom d'utilisateur">
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Mot de passe</label>
+                        <input type="password" id="loginPassword" required autocomplete="current-password" placeholder="Entrez votre mot de passe">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-login">Se connecter</button>
+                    <div id="loginError" class="login-error" style="display: none;"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenu principal (masqué jusqu'à la connexion) -->
+    <div id="mainContent" class="main-content" style="display: none;">
+        <div class="container">
+            <header class="header">
+                <h1>📊 Tableau de Suivi des Besoins de Staffing</h1>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" id="settingsBtn">⚙️ Paramètres</button>
+                    <button class="btn btn-secondary" id="saveBtn">💾 Sauvegarder</button>
+                    <button class="btn btn-secondary" id="loadBtn">📂 Charger</button>
+                    <button class="btn btn-secondary" id="exportCsvBtn">⬇ Exporter en Excel</button>
+                    <button class="btn btn-primary" id="addRequestBtn">+ Nouvelle demande</button>
+                </div>
+            </header>
+
+        <div class="controls">
+            <div class="stats-section">
+                <div class="stat-card">
+                    <span class="stat-label">Total demandes:</span>
+                    <span class="stat-value" id="totalRequests">0</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Demandes ce mois:</span>
+                    <span class="stat-value" id="monthlyRequests">0</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Jobs ouverts / fermés:</span>
+                    <span class="stat-value" id="openClosedJobs">0 / 0</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Taux de transformation:</span>
+                    <span class="stat-value" id="conversionRate">0%</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Taux de réponse:</span>
+                    <span class="stat-value" id="responseRate">0%</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Deals total:</span>
+                    <span class="stat-value" id="dealsCount">0</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Deals ce mois:</span>
+                    <span class="stat-value" id="monthlyDeals">0</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Marge totale:</span>
+                    <span class="stat-value" id="totalMargin">0€</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="search-section">
+            <div class="search-container">
+                <label for="searchInput">🔍 Rechercher :</label>
+                <input type="text" id="searchInput" class="search-input" placeholder="Rechercher par date, client ou fonction...">
+                <button type="button" id="clearSearch" class="btn-clear-search" style="display: none;">✕ Effacer</button>
+            </div>
+            <div class="filter-buttons">
+                <button type="button" class="filter-btn active" data-filter="all">Tous</button>
+                <button type="button" class="filter-btn" data-filter="red" style="background-color: #ffe6e6; color: #721c24; border: 2px solid #dc3545;">🔴 Rouge (>48h)</button>
+                <button type="button" class="filter-btn" data-filter="orange" style="background-color: #ffe0b2; color: #e65100; border: 2px solid #ff6f00;">🟠 Orange (24-48h)</button>
+                <button type="button" class="filter-btn" data-filter="green" style="background-color: #e6f7e6; color: #2e7d32; border: 2px solid #28a745;">🟢 Vert (<24h ou CV OK)</button>
+                <div class="quality-filter">
+                    <label for="qualityFilter">Qualité:</label>
+                    <select id="qualityFilter" class="quality-select">
+                        <option value="all">Toutes</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                        <option value="D">D</option>
+                    </select>
+                </div>
+                <div class="status-toggle-container">
+                    <label class="toggle-label">
+                        <input type="checkbox" id="showOnlyOpen" class="toggle-switch">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span class="toggle-text">Afficher uniquement les besoins ouverts</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Statut</th>
+                        <th>Date entrée</th>
+                        <th>Client</th>
+                        <th>Téléphone</th>
+                        <th>Email</th>
+                        <th>Fonction recherchée</th>
+                        <th>N</th>
+                        <th>Q</th>
+                        <th>F</th>
+                        <th>CV envoyés</th>
+                        <th>Consultants</th>
+                        <th>Interviews</th>
+                        <th>Fichier CVs</th>
+                        <th>Deal</th>
+                        <th>Marge</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- Les lignes seront générées dynamiquement ici -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal pour ajouter/modifier une demande -->
+    <div id="requestModal" class="modal">
+        <div class="modal-content modal-large">
+            <span class="close">&times;</span>
+            <h2 id="modalTitle">Nouvelle demande</h2>
+            <form id="requestForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="entryDate">Date d'entrée *</label>
+                        <input type="date" id="entryDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="entryTime">Heure d'entrée *</label>
+                        <input type="time" id="entryTime" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="clientName">Nom du client *</label>
+                        <input type="text" id="clientName" required placeholder="Ex: Entreprise ABC">
+                    </div>
+                    <div class="form-group">
+                        <!-- Espace pour alignement -->
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="clientPhone">Téléphone *</label>
+                        <input type="tel" id="clientPhone" required placeholder="Ex: 06 12 34 56 78">
+                    </div>
+                    <div class="form-group">
+                        <label for="clientEmail">Email *</label>
+                        <input type="email" id="clientEmail" required placeholder="Ex: contact@entreprise.com">
+                    </div>
+                </div>
+                <div class="form-row">
+                <div class="form-group">
+                    <label for="jobFunction">Nom de la fonction recherchée *</label>
+                    <div style="display: flex; gap: 10px; align-items: flex-end;">
+                        <input type="text" id="jobFunction" required placeholder="Ex: Développeur Full Stack" style="flex: 1;">
+                        <div style="display: flex; flex-direction: column; gap: 5px;">
+                            <label for="jobFunctionFile" style="font-size: 12px; cursor: pointer; padding: 8px 12px; background: #667eea; color: white; border-radius: 6px; text-align: center; margin: 0; display: inline-block;">
+                                📎 Joindre fichier
+                            </label>
+                            <input type="file" id="jobFunctionFile" accept=".pdf,.doc,.docx" style="display: none;" onchange="handleJobFunctionFileChange(event)">
+                            <span id="jobFunctionFileName" style="font-size: 11px; color: #666; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block;"></span>
+                        </div>
+                    </div>
+                    <input type="hidden" id="jobFunctionFileData" value="">
+                </div>
+                    <div class="form-group">
+                        <label for="numberOfPositions">Nombre de fonctions similaires (N) *</label>
+                        <input type="number" id="numberOfPositions" required min="1" value="1" placeholder="Ex: 2">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="jobQuality">Qualité du job *</label>
+                        <select id="jobQuality" required>
+                            <option value="">Sélectionner</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="reliability">Fiabilité *</label>
+                        <select id="reliability" required>
+                            <option value="">Sélectionner</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="cvSent">Nombre de CV envoyés</label>
+                    <select id="cvSent">
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                        <option value="10+">10+</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Consultants (CV envoyés)</label>
+                    <div id="consultantsContainer">
+                        <!-- Les champs de consultant seront ajoutés dynamiquement -->
+                    </div>
+                    <button type="button" class="btn btn-small btn-secondary" id="addConsultantBtn">+ Ajouter un consultant</button>
+                </div>
+                <div class="form-group">
+                    <label>Interviews</label>
+                    <div id="interviewsContainer">
+                        <!-- Les champs d'interview seront ajoutés dynamiquement -->
+                    </div>
+                    <button type="button" class="btn btn-small btn-secondary" id="addInterviewBtn">+ Ajouter une interview</button>
+                </div>
+                <div class="form-group">
+                    <label for="cvFileLink">Chemin complet du dossier CVs</label>
+                    <input type="text" id="cvFileLink" placeholder="Ex: C:\Documents\CVs\Developpeur ou Ce PC\Bureau\Business\CVs">
+                    <small class="form-hint">Copiez-collez le chemin complet du dossier dans ce champ (ex: Ce PC\Bureau\Business\CVs\admin workplace)</small>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="requestStatus">Statut</label>
+                        <select id="requestStatus">
+                            <option value="ouvert">Ouvert</option>
+                            <option value="ferme">Fermé</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="isDeal">Deal</label>
+                        <select id="isDeal">
+                            <option value="non">Non</option>
+                            <option value="oui">Oui</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="marginGroup" style="display: none;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="dealDate">Date du deal</label>
+                            <input type="date" id="dealDate">
+                        </div>
+                        <div class="form-group">
+                            <label for="marginAmount">Marge générée (€)</label>
+                            <input type="number" id="marginAmount" min="0" step="0.01" placeholder="Ex: 15000.50">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelBtn">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </div>
+                <input type="hidden" id="requestId">
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal pour les paramètres -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-settings">&times;</span>
+            <h2>⚙️ Paramètres</h2>
+            
+            <!-- Code d'accès pour ouvrir les paramètres -->
+            <div id="settingsAccessCode" class="settings-section">
+                <h3>Code d'accès</h3>
+                <div class="form-group">
+                    <label for="accessCodeInput">Entrez le code d'accès pour modifier les paramètres</label>
+                    <input type="password" id="accessCodeInput" placeholder="Code d'accès" maxlength="6">
+                    <button type="button" class="btn btn-primary" id="verifyAccessCodeBtn">Vérifier</button>
+                    <div id="accessCodeError" class="error-message" style="display: none;"></div>
+                </div>
+            </div>
+
+            <!-- Gestion des utilisateurs (masqué jusqu'à la vérification du code) -->
+            <div id="usersManagement" class="settings-section" style="display: none;">
+                <h3>Gestion des utilisateurs</h3>
+                <div id="usersList" class="users-list">
+                    <!-- Les utilisateurs seront affichés ici dynamiquement -->
+                </div>
+                <button type="button" class="btn btn-primary" id="addUserBtn">+ Ajouter un utilisateur</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal pour ajouter/modifier un utilisateur -->
+    <div id="userModal" class="modal">
+        <div class="modal-content modal-small">
+            <span class="close-user-modal">&times;</span>
+            <h2 id="userModalTitle">Ajouter un utilisateur</h2>
+            <form id="userForm">
+                <div class="form-group">
+                    <label for="userUsername">Nom d'utilisateur *</label>
+                    <input type="text" id="userUsername" required placeholder="Ex: admin">
+                </div>
+                <div class="form-group">
+                    <label for="userPassword">Mot de passe *</label>
+                    <input type="password" id="userPassword" required placeholder="Entrez le mot de passe">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelUserBtn">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </div>
+                <input type="hidden" id="userId">
+            </form>
+        </div>
+    </div>
+
+    <!-- Bibliothèque SheetJS pour l'export Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
