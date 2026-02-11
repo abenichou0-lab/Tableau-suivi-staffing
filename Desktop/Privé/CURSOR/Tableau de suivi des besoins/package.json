@@ -2,7 +2,9 @@
   "name": "tableau-suivi-staffing",
   "version": "1.0.0",
   "description": "Tableau de Suivi des Besoins de Staffing",
+  "type": "module",
   "scripts": {
+    "dev": "npx serve .",
     "start": "npx serve ."
   },
   "keywords": ["staffing", "tableau", "suivi"],
